@@ -1,6 +1,9 @@
 FROM python:3.11-slim
 
-# Add and use a non-root user
+# Patch Management: Update OS packages to fix vulnerabilities
+RUN apt-get update && apt-get upgrade -y && apt-get clean
+
+# Secure User Mapping: Create and use non-root user
 RUN useradd -ms /bin/bash appuser
 
 WORKDIR /app
@@ -10,9 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Switch to non-root user
+# Set ownership of app directory to non-root user
+RUN chown -R appuser:appuser /app
+
 USER appuser
 
 EXPOSE 5000
 
 CMD ["python", "app.py"]
+
