@@ -1,26 +1,24 @@
-FROM python:3.11-slim
-
-# Patch Management: Update OS packages to fix vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get clean
-
-# Secure User Mapping: Create and use non-root user
-RUN useradd -ms /bin/bash appuser
+FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install jinja2==3.0.3
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y curl
 
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Set ownership of app directory to non-root user
-RUN chown -R appuser:appuser /app
+# Create a non-root user without explicitly creating a group:
+RUN useradd -m appuser
 
+# Change ownership of /app to this user
+RUN chown -R appuser /app
+
+# Use the non-root user
 USER appuser
 
 EXPOSE 5000
 
 CMD ["python", "app.py"]
-
