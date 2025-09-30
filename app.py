@@ -1,14 +1,14 @@
-from flask import Flask, request, render_template_string, render_template
+from flask import Flask, request
+import subprocess
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    name = request.args.get("name", "User")
-    template = f"Hello {name}!"
-    return render_template_string(template)
-    #patch: remove above 2 lines and add below one line, index.html file is recommented
-    #return render_template("index.html", name=name)
+@app.route('/run_command', methods=['POST'])
+def run_command():
+    cmd = request.form.get('cmd', '')
+    # Intentionally unsafe command execution!
+    output = subprocess.getoutput(cmd)
+    return f"<pre>{output}</pre>"
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port=5000)
