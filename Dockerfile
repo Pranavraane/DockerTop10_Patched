@@ -5,6 +5,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get clean
 
 # D01: Secure User Mapping – Create/Use a non-root user
 RUN useradd -ms /bin/bash appuser
+RUN pip install --upgrade Flask jinja2 markupsafe
+
 
 WORKDIR /app
 
