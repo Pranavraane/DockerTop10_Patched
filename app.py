@@ -1,12 +1,25 @@
-from flask import Flask, request, render_template
+from flask import Flask, jsonify
+import os
 
 app = Flask(__name__)
 
-@app.route('/ssti')
-def ssti():
-    name = request.args.get('name', 'User')
-    # Safely pass user input as template variable, avoiding direct template injection
-    return render_template('hello.html', name=name)
+# Read secret securely from file mounted by Docker Secret
+def read_secret():
+    try:
+        with open("/run/secrets/secret_key", "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "Secret not available"
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+@app.route('/')
+def index():
+    return "<h2>D06 Patched App - Secret Protected</h2>"
+
+@app.route('/secret')
+def secret():
+    # No direct exposure of secret info; API restricts access
+    secret_value = read_secret()
+    return jsonify({"message": "Secret securely loaded from Docker Secret"})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
