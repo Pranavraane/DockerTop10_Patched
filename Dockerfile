@@ -1,17 +1,14 @@
 FROM python:3.11-slim
 
-# Add and use a non-root user
-RUN useradd -ms /bin/bash appuser
-
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install jinja2==3.0.3
+RUN pip install --no-cache-dir -r requirements.txt flask
 
-COPY . .
+COPY app.py /app/
 
-# Switch to non-root user
+# No hardcoded secrets! Using Docker Secrets or mounted file instead
+RUN adduser --disabled-password --gecos "" appuser
 USER appuser
 
 EXPOSE 5000
