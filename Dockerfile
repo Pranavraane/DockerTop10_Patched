@@ -1,19 +1,18 @@
-FROM python:3.11-slim
-
-# Add and use a non-root user
-RUN useradd -ms /bin/bash appuser
+FROM ubuntu:24.04
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install jinja2==3.0.3
+# Install Python full and venv support along with pip
+RUN apt-get update && apt-get install -y python3-full python3-venv python3-pip
 
-COPY . .
+# Create and activate a virtual environment, then install Flask inside it
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Switch to non-root user
-USER appuser
+COPY app.py /app/app.py
+
+RUN pip install flask
 
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["python3", "app.py"]
