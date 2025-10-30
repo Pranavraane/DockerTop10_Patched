@@ -1,19 +1,13 @@
-FROM python:3.11-slim
-
-# Add and use a non-root user
-RUN useradd -ms /bin/bash appuser
+FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install jinja2==3.0.3
+COPY app.py .
 
-COPY . .
+RUN pip install flask
 
-# Switch to non-root user
-USER appuser
-
-EXPOSE 5000
+RUN mkdir /var/log/myapp
+# Set restrictive permissions to prevent unauthorized log file deletion
+RUN chmod 750 /var/log/myapp
 
 CMD ["python", "app.py"]
