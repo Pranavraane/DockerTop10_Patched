@@ -1,12 +1,23 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, abort
+import logging
+import os
 
 app = Flask(__name__)
 
-@app.route('/ssti')
-def ssti():
-    name = request.args.get('name', 'User')
-    # Safely pass user input as template variable, avoiding direct template injection
-    return render_template('hello.html', name=name)
+log_file = "/var/log/myapp/access.log"
+logging.basicConfig(filename=log_file, level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+@app.route('/')
+def home():
+    logging.info(f"Home page accessed from {request.remote_addr}")
+    return "Welcome to the secure app!"
+
+@app.route('/danger')
+def danger():
+    # Remove or restrict log deletion endpoint to prevent abuse
+    # For demonstration, we block all attempts
+    abort(403, description="Access denied")
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
